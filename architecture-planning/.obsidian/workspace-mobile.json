@@ -42,7 +42,7 @@
               "type": "markdown",
               "state": {
                 "file": "App-architecture.md",
-                "mode": "preview",
+                "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
@@ -127,7 +127,7 @@
         "state": {
           "type": "backlink",
           "state": {
-            "file": "Email sender/Full feature set.md",
+            "file": "App-architecture.md",
             "collapseAll": false,
             "extraContext": false,
             "sortOrder": "alphabetical",

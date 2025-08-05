@@ -57,13 +57,24 @@ Development should follow [[Version planning]]
 <!-- conversations: id, sender_id, bot_id, thread_status, next_action_time -->
 <!-- scheduled_tasks: priority_level, task_type, target_time, payload -->
 
-## Complete Flow
+## Complete Flow (cold emails)
 
-1. Queue Manager checks Sender A's daily quota and warmup schedule
-2. Queue Manager queries Database for available bots (considering interaction history)
-3. Queue Manager selects bot using selection logic (virgin → probabilistic → active pool)
-4. Email Operations sends warmup email from Sender A to selected bot
-5. Database records interaction (sender_id, bot_id, interaction_type, timestamp)
-6. Bot Module receives email, decides to reply based on configured rates
-7. If replying: Bot Module schedules reply in high-priority Reply Queue
-8. Queue Manager processes reply queue and sends response via Email Operations
+1. Campaign Manager: User initializes new campaign (sets limits, uploads leads)
+2. Campaign Manager: Checks available sender accounts after rotation, assigns them to campaign
+3. Campaign Manager: Spawns Queue Module instances for each assigned sender (parallelization)
+4. Queue Module: Checks if assigned sender needs warmup (sender.warmup_end_date > current_date)
+5. Queue Module: If warmup needed → modifies parameters:
+
+- daily_quota = reduced warmup limit
+- percentageOfColdEmailsToBots = 100%
+- If normal mode → uses original sender parameters
+
+6. Queue Module: Populates cold outreach queue with targets:
+
+- Warmup mode: only bots (calculated amount based on daily_quota)
+- Normal mode: leads + bots (based on percentageOfColdEmailsToBots)
+
+7. Queue Manager: Processes queue, selects specific bot using selection logic (virgin → probabilistic → active pool)
+8. Email Operations: Sends email from sender to selected target
+9. Database: Records interaction (sender_id, target_id, interaction_type, timestamp)
+10. Bot Module: If target was bot → decides to reply based on configured rates → schedules reply in high-priority Reply Queue
