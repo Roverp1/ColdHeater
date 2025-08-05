@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Email sender/Basic feature set.md",
+                "file": "App-architecture.md",
                 "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "Basic feature set"
+              "title": "App-architecture"
             }
           }
         ],

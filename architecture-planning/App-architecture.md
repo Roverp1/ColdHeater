@@ -56,3 +56,14 @@ Development should follow [[Version planning]]
 <!-- bot_sender_interactions: sender_id, bot_id, interaction_type, last_contact -->
 <!-- conversations: id, sender_id, bot_id, thread_status, next_action_time -->
 <!-- scheduled_tasks: priority_level, task_type, target_time, payload -->
+
+## Complete Flow
+
+1. Queue Manager checks Sender A's daily quota and warmup schedule
+2. Queue Manager queries Database for available bots (considering interaction history)
+3. Queue Manager selects bot using selection logic (virgin → probabilistic → active pool)
+4. Email Operations sends warmup email from Sender A to selected bot
+5. Database records interaction (sender_id, bot_id, interaction_type, timestamp)
+6. Bot Module receives email, decides to reply based on configured rates
+7. If replying: Bot Module schedules reply in high-priority Reply Queue
+8. Queue Manager processes reply queue and sends response via Email Operations
