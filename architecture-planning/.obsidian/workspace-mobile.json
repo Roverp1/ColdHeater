@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "App-architecture.md",
+                "file": "app_architecture.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "App-architecture"
+              "title": "app_architecture"
             }
           }
         ],
@@ -127,7 +127,7 @@
         "state": {
           "type": "backlink",
           "state": {
-            "file": "App-architecture.md",
+            "file": "app_architecture.md",
             "collapseAll": false,
             "extraContext": false,
             "sortOrder": "alphabetical",

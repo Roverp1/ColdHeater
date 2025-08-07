@@ -15,12 +15,10 @@ Development should follow [[Version planning]]
 ## Main modules
 
 1. Sender Module
-   - Warmup scheduling
+   - Warmup threading
    - Cold email sending
    - Reputation tracking
-   - Per-sender delays
 2. Bot Module
-   - Creation & aging
    - Rotation & limits
    - IP management
    - Reply delays
@@ -33,8 +31,9 @@ Development should follow [[Version planning]]
    - Manages priority queues (reply vs cold outreach)
    - Enforces daily quotas and caps
    - Selects appropriate bots based on interaction history
-5. Email Operations Module
-   - Actual email sending/receiving (used by all above)
+5. Bot Creation Module
+   - Bot creation
+   - Bot aging
 6. Database Module
    - Storage for all entities
 7. UI Module
@@ -59,6 +58,8 @@ Development should follow [[Version planning]]
 
 ## Complete Flow (cold emails)
 
+_Before adding a sender, to a list of available senders. One need to select a proxy for a specific sender and configure SPF with selected proxy's ip_
+
 1. Campaign Manager: User initializes new campaign (sets limits, uploads leads)
 2. Campaign Manager: Checks available sender accounts after rotation, assigns them to campaign
 3. Campaign Manager: Spawns Queue Module instances for each assigned sender (parallelization)
@@ -69,12 +70,14 @@ Development should follow [[Version planning]]
 - percentageOfColdEmailsToBots = 100%
 - If normal mode → uses original sender parameters
 
-6. Queue Module: Populates cold outreach queue with targets:
+6. Queue Module: Initializes cold outreach queue with data loaded from database
+
+7. Queue Module: Populates cold outreach queue with targets:
 
 - Warmup mode: only bots (calculated amount based on daily_quota)
 - Normal mode: leads + bots (based on percentageOfColdEmailsToBots)
 
-7. Queue Manager: Processes queue, selects specific bot using selection logic (virgin → probabilistic → active pool)
-8. Email Operations: Sends email from sender to selected target
+7. Queue Module: Processes queue, with calculated delay
+8. Sender Module: Sends email from sender to selected target
 9. Database: Records interaction (sender_id, target_id, interaction_type, timestamp)
 10. Bot Module: If target was bot → decides to reply based on configured rates → schedules reply in high-priority Reply Queue

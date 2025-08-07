@@ -22,5 +22,7 @@
     "editor:unindent-list",
     "editor:configure-toolbar"
   ],
-  "livePreview": false
+  "livePreview": false,
+  "useTab": false,
+  "smartIndentList": false
 }
