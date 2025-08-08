@@ -82,3 +82,7 @@ _Before adding a sender, to a list of available senders. One need to select a pr
 8. Sender Module: Sends email from sender to selected target
 9. Database: Records interaction (sender_id, target_id, interaction_type, timestamp)
 10. Bot Module: If target was bot → decides to reply based on configured rates → schedules reply in high-priority Reply Queue
+
+## File structure
+
+Initial file structure is described in [[file_structure]]
