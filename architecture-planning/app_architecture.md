@@ -19,7 +19,7 @@ Development should follow [[Version planning]]
    - Cold email sending
    - Reputation tracking
 2. Bot Module
-   - Rotation & limits
+   <!-- - Rotation & limits -->
    - IP management
    - Reply delays
    - Reputation tracking
@@ -48,13 +48,14 @@ Development should follow [[Version planning]]
 3. Campaigns (cold outreach sequences)
    - sender rotation and management, ip management,
 
-## Database schema
+## Database schema (postgresql)
 
-<!-- senders: id, daily_quota, current_count, reputation_score -->
-<!-- bots: id, status, interaction_limits, cooldown_until   -->
-<!-- bot_sender_interactions: sender_id, bot_id, interaction_type, last_contact -->
-<!-- conversations: id, sender_id, bot_id, thread_status, next_action_time -->
-<!-- scheduled_tasks: priority_level, task_type, target_time, payload -->
+- bots: id, email, ip, status, created_at, last_used, aging_end_date
+- campaigns: id, ip
+- senders: id, email, daily_quota (?), warmup_end_date, campaign_id
+- sender_bot_interactions: id, sender_id, bot_id, interaction_type, created_at
+- queue_tasks: id, campaign_id, queue_type, task_data, priority, scheduled_time, status
+- conversations: id, sender_id, bot_id, thread_id, message_id, subject, next_step_time
 
 ## Complete Flow (cold emails)
 
