@@ -16,4 +16,6 @@ func main() {
 	defer db.Close()
 
 	fmt.Printf("Successfully connected to database\n")
+
+	cli.ShowMenu()
 }
