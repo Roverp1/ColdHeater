@@ -6,11 +6,7 @@ tags: []
 
 <!-- prettier-ignore -->
 ColdHeater/
-├── cmd/
-│   ├── coldheater/           # Main CLI application
-│   │   └── main.go
-│   └── bot-creator/          # Standalone bot creation tool
-│       └── main.go
+├── main.go                 # Main CLI application
 ├── internal/                 # Private application code
 │   ├── bot/                 # Bot Creation Module
 │   │   ├── creator.go       # Bot creation logic
@@ -25,6 +21,8 @@ ColdHeater/
 │   │   ├── migrations.go    # Schema setup
 │   │   └── postgres.go      # PostgreSQL implementation
 │   └── ui/                  # UI Module
+│       ├── cli/
+│       └── rest/
 ├── pkg/                     # Reusable libraries (if any)
 ├── configs/                 # Configuration files
 ├── scripts/                 # Build/deployment scripts
