@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"errors"
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -10,12 +10,25 @@ import (
 )
 
 func Connect() (*sql.DB, error) {
-	DATABASE_URL := os.Getenv("DATABASE_URL")
-	if DATABASE_URL == "" {
-		return nil, errors.New("Mising DATABASE_URL env variable")
+	err := godotenv.Load()
+	if err != nil {
+		return nil, fmt.Errorf("Error loading .env file: %v", err)
 	}
 
-	bd, err := sql.Open("postgres", DATABASE_URL)
+	DATABASE_URL := os.Getenv("DATABASE_URL")
+	if DATABASE_URL == "" {
+		return nil, fmt.Errorf("Missing DATABASE_URL env variable")
+	}
 
-	return bd, err
+	db, err := sql.Open("postgres", DATABASE_URL)
+	if err != nil {
+		return nil, fmt.Errorf("Wasnt able to Open a database: %v", err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, fmt.Errorf("Cannot connect to database: %v", err)
+	}
+
+	return db, nil
 }
