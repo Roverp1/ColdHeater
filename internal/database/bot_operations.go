@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
+	"coldheater/internal/config"
 )
 
-func InsertBot(db *sql.DB, bot Bot) error {
-	agingEndDate := time.Now().AddDate(0, 0, 14)
+func InsertBot(db *sql.DB, bot Bot, config *config.Config) error {
+	agingEndDate := time.Now().AddDate(0, 0, config.Bot.AgingPeriod)
 
 	var ipValue sql.NullString
 	if bot.IP != nil {
@@ -34,7 +36,7 @@ func GetBot(db *sql.DB, email string) (*Bot, error) {
 	row := db.QueryRow("SELECT * FROM bots WHERE email = $1", email)
 	err := row.Scan(&bot.Email, &ipNull, &bot.Status, &bot.CreatedAt, &agingEndDateNull)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to copy seleted row into bot struct for %s:\n%v", email, err)
+		return nil, fmt.Errorf("Failed to scan selected row %s into bot struct:\n%v", email, err)
 	}
 
 	if ipNull.Valid {
@@ -50,4 +52,31 @@ func GetBot(db *sql.DB, email string) (*Bot, error) {
 	}
 
 	return &bot, nil
+}
+
+func GetAllBots(db *sql.DB) ([]Bot, error) {
+	var bots []Bot
+
+	rows, err := db.Query("SELECT * FROM bots")
+	if err != nil {
+		return nil, fmt.Errorf("Failed to query all bots from database:\n%v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var bot Bot
+
+		err := rows.Scan(&bot.Email, &bot.IP, &bot.Status, &bot.CreatedAt, &bot.AgingEndDate)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to scan selected row %s into bot struct:\n%v", bot.Email, err)
+		}
+
+		bots = append(bots, bot)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("Error during rows iteration:\n%v", err)
+	}
+
+	return bots, err
 }
