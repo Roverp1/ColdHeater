@@ -26,11 +26,27 @@ func InsertBot(db *sql.DB, bot Bot) error {
 
 func GetBot(db *sql.DB, email string) (*Bot, error) {
 	var bot Bot
+	var (
+		ipNull           sql.NullString
+		agingEndDateNull sql.NullTime
+	)
 
 	row := db.QueryRow("SELECT * FROM bots WHERE email = $1", email)
-	err := row.Scan(&bot.Email, &bot.IP, &bot.Status, &bot.CreatedAt, &bot.AgingEndDate)
+	err := row.Scan(&bot.Email, &ipNull, &bot.Status, &bot.CreatedAt, &agingEndDateNull)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to copy seleted row into bot struct for %s:\n%v", email, err)
+	}
+
+	if ipNull.Valid {
+		bot.IP = &ipNull.String
+	} else {
+		bot.IP = nil
+	}
+
+	if agingEndDateNull.Valid {
+		bot.AgingEndDate = &agingEndDateNull.Time
+	} else {
+		bot.AgingEndDate = nil
 	}
 
 	return &bot, nil
