@@ -1,9 +1,14 @@
 package cli
 
-import "fmt"
+import (
+	"coldheater/internal/database"
+	"database/sql"
+	"fmt"
+	"os"
+)
 
-func ShowMenu() {
-	options := [...]string{"Create new bot", "Upload leads", "Start cold outreach", "Exit"}
+func ShowMenu(db *sql.DB) {
+	options := [...]string{"Create new bot", "Upload leads", "Start cold outreach", "List all bots", "Exit"}
 
 	for {
 		fmt.Printf("=== ColdHeater CLI ===\n")
@@ -27,10 +32,22 @@ func ShowMenu() {
 		case 3:
 			fmt.Printf("Starting cold outreach...\n")
 		case 4:
+			bots, err := database.GetAllBots(db)
+			if err != nil {
+				fmt.Printf("%v\n", err)
+			}
+			for _, bot := range bots {
+				fmt.Println(bot)
+			}
+		case 5:
 			fmt.Printf("Dust to dust...\n")
 			return
 		default:
 			fmt.Printf("Invalid input. Enter a digit between 1-%d\n", len(options))
 		}
+
+		fmt.Printf("Press ENTER to continue...")
+		var temp [1]byte
+		os.Stdin.Read(temp[:])
 	}
 }
