@@ -3,15 +3,16 @@ module coldheater
 go 1.24.3
 
 require (
+	github.com/brianvoe/gofakeit/v7 v7.3.0
 	github.com/go-rod/rod v0.116.2
+	github.com/go-rod/stealth v0.4.9
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
+	github.com/resend/resend-go/v2 v2.22.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	github.com/brianvoe/gofakeit/v7 v7.3.0 // indirect
-	github.com/go-rod/stealth v0.4.9 // indirect
 	github.com/ysmood/fetchup v0.3.0 // indirect
 	github.com/ysmood/goob v0.4.0 // indirect
 	github.com/ysmood/got v0.41.0 // indirect

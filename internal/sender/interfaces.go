@@ -1,7 +1,9 @@
 package sender
 
+import "coldheater/internal/database"
+
 type EmailSender interface {
-	SendColdEmail(sender Sender, recipient string, content EmailContent) error
+	SendColdEmail(sender database.Sender, recipient string, content EmailContent) error
 	SendWarmupReply(conversation Conversation, replyContent string) error
 }
 
