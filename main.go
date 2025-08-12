@@ -17,5 +17,5 @@ func main() {
 
 	fmt.Printf("Successfully connected to database\n")
 
-	cli.ShowMenu()
+	cli.ShowMenu(db)
 }
