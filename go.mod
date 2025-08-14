@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/go-rod/stealth v0.4.9 // indirect
 	github.com/ysmood/fetchup v0.3.0 // indirect
 	github.com/ysmood/goob v0.4.0 // indirect
 	github.com/ysmood/got v0.41.0 // indirect
