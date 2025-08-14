@@ -50,7 +50,8 @@ Development should follow [[Version planning]]
 
 ## Database schema (postgresql)
 
-- bots: id, email, ip, status, created_at, last_used, aging_end_date
+- bots: email, status, created_at, last_used, aging_end_date
+- bot_accounts: email, first_name, last_name, username, password, birthdate - ?
 - campaigns: id, ip
 - senders: id, email, daily_quota (?), warmup_end_date, campaign_id
 - sender_bot_interactions: id, sender_id, bot_id, interaction_type, created_at
