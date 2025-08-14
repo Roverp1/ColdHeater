@@ -1,6 +1,7 @@
 package cli
 
 import (
+	botcreation "coldheater/internal/bot_creation"
 	"coldheater/internal/database"
 	"database/sql"
 	"fmt"
@@ -26,7 +27,10 @@ func ShowMenu(db *sql.DB) {
 
 		switch userInput {
 		case 1:
-			fmt.Printf("Creating new bot...\n")
+			err := botcreation.CreateGmailBot()
+			if err != nil {
+				fmt.Printf("Failed to craete bot:\n%v\n", err)
+			}
 		case 2:
 			fmt.Printf("Uploading leads...\n")
 		case 3:
@@ -46,7 +50,7 @@ func ShowMenu(db *sql.DB) {
 			fmt.Printf("Invalid input. Enter a digit between 1-%d\n", len(options))
 		}
 
-		fmt.Printf("Press ENTER to continue...")
+		fmt.Printf("\nPress ENTER to continue...\n")
 		var temp [1]byte
 		os.Stdin.Read(temp[:])
 	}
