@@ -1,6 +1,8 @@
 package botcreation
 
 import (
+	"time"
+
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/go-rod/stealth"
@@ -10,12 +12,12 @@ type StealthBrowser struct {
 	Browser *rod.Browser
 }
 
-func NewStealthBrowser(headless bool) *StealthBrowser {
+func NewStealthBrowser(headless bool, delay time.Duration) *StealthBrowser {
 	l := launcher.New().
 		Headless(headless).
 		MustLaunch()
 
-	browser := rod.New().ControlURL(l).NoDefaultDevice().MustConnect()
+	browser := rod.New().ControlURL(l).SlowMotion(delay).NoDefaultDevice().MustConnect()
 
 	return &StealthBrowser{
 		Browser: browser,
