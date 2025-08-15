@@ -15,6 +15,7 @@ CREATE TABLE bots (
     email varchar(255) PRIMARY KEY,
     status bot_status DEFAULT 'creating',
     created_at timestamp DEFAULT NOW(),
+    last_used timestamp DEFAULT NOW(),
     aging_end_date timestamp,
     first_name varchar(100),
     last_name varchar(100),
