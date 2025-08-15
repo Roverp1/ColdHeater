@@ -50,8 +50,7 @@ Development should follow [[Version planning]]
 
 ## Database schema (postgresql)
 
-- bots: email, status, created_at, last_used, aging_end_date
-- bot_accounts: email, first_name, last_name, username, password, birthdate - ?
+- bots: email, status, created_at, last_used, aging_end_date, first_name, last_name, username, password
 - campaigns: id, ip
 - senders: id, email, daily_quota (?), warmup_end_date, campaign_id
 - sender_bot_interactions: id, sender_id, bot_id, interaction_type, created_at
@@ -87,3 +86,25 @@ _Before adding a sender, to a list of available senders. One need to select a pr
 ## File structure
 
 Initial file structure is described in [[file_structure]]
+
+## Warmup flow
+
+1. Select account pool (bots or senders)
+   <!-- 2. Select accounts for a warmup session (<100) -->
+   <!-- 3. Select and Execute Actions -->
+   <!---->
+   <!-- - Choose actions based on account phase, history, and randomization -->
+   <!---->
+   <!-- 4. Update Account State -->
+   <!---->
+   <!-- - Record the action, update reputation scores, schedule next action -->
+   <!---->
+   <!-- 5. Save State -->
+   <!---->
+   <!-- - Persist changes to avoid losing progress -->
+   <!---->
+   <!-- 6. Sleep Until Next Event -->
+   <!---->
+   <!-- - Wait for the next scheduled action time -->
+   <!---->
+
