@@ -3,22 +3,43 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"coldheater/internal/config"
 )
 
 func InsertBot(db *sql.DB, bot Bot, config *config.Config) error {
-	agingEndDate := time.Now().AddDate(0, 0, config.Bot.AgingPeriod)
-
-	var ipValue sql.NullString
-	if bot.IP != nil {
-		ipValue = sql.NullString{String: *bot.IP, Valid: true}
+	var agingEndDate time.Time
+	if bot.AgingEndDate != nil {
+		agingEndDate = *bot.AgingEndDate
 	} else {
-		ipValue = sql.NullString{Valid: false}
+		agingEndDate = time.Now().AddDate(0, 0, config.Bot.AgingPeriod)
 	}
 
-	_, err := db.Exec("INSERT INTO bots (email, status, ip, aging_end_date) VALUES ($1, $2, $3, $4)", bot.Email, bot.Status, ipValue, agingEndDate)
+	columns := []string{"email", "aging_end_date"}
+	placeholders := []string{"$1", "$2"}
+	values := []any{bot.Email, agingEndDate}
+	var placeHolderIndex uint8 = 3
+
+	insertBotHelper := func(value *string, insert string) {
+		if value != nil {
+			values = append(values, value)
+			placeholders = append(placeholders, fmt.Sprintf("$%d", placeHolderIndex))
+			columns = append(columns, insert)
+			placeHolderIndex++
+		}
+	}
+
+	insertBotHelper(bot.Status, "status")
+	insertBotHelper(bot.FirstName, "first_name")
+	insertBotHelper(bot.LastName, "last_name")
+	insertBotHelper(bot.Username, "username")
+	insertBotHelper(bot.Password, "password")
+
+	sqlQuery := fmt.Sprintf("INSERT INTO bots (%s) VALUES (%s)", strings.Join(columns, ", "), strings.Join(placeholders, ", "))
+
+	_, err := db.Exec(sqlQuery, values...)
 	if err != nil {
 		return fmt.Errorf("Failed to insert bot %s:\n%v", bot.Email, err)
 	}
@@ -29,8 +50,8 @@ func InsertBot(db *sql.DB, bot Bot, config *config.Config) error {
 func GetBot(db *sql.DB, email string) (*Bot, error) {
 	var bot Bot
 
-	row := db.QueryRow("SELECT email, ip, status, created_at, aging_end_date FROM bots WHERE email = $1", email)
-	err := row.Scan(&bot.Email, &bot.IP, &bot.Status, &bot.CreatedAt, &bot.AgingEndDate)
+	row := db.QueryRow("SELECT email, status, created_at, last_used, aging_end_date, first_name, last_name, username, password FROM bots WHERE email = $1", email)
+	err := row.Scan(&bot.Email, &bot.Status, &bot.CreatedAt, &bot.LastUsed, &bot.AgingEndDate, &bot.FirstName, &bot.LastName, &bot.Username, &bot.Password)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to scan selected row %s into bot struct:\n%v", email, err)
 	}
@@ -41,7 +62,7 @@ func GetBot(db *sql.DB, email string) (*Bot, error) {
 func GetAllBots(db *sql.DB) ([]Bot, error) {
 	var bots []Bot
 
-	rows, err := db.Query("SELECT email, ip, status, created_at, aging_end_date FROM bots")
+	rows, err := db.Query("SELECT email, status, created_at, last_used, aging_end_date, first_name, last_name, username, password FROM bots")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to query all bots from database:\n%v", err)
 	}
@@ -50,7 +71,7 @@ func GetAllBots(db *sql.DB) ([]Bot, error) {
 	for rows.Next() {
 		var bot Bot
 
-		err := rows.Scan(&bot.Email, &bot.IP, &bot.Status, &bot.CreatedAt, &bot.AgingEndDate)
+		err := rows.Scan(&bot.Email, &bot.Status, &bot.CreatedAt, &bot.LastUsed, &bot.AgingEndDate, &bot.FirstName, &bot.LastName, &bot.Username, &bot.Password)
 		if err != nil {
 			return nil, fmt.Errorf("Failed to scan selected row %s into bot struct:\n%v", bot.Email, err)
 		}

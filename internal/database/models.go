@@ -4,7 +4,7 @@ import "time"
 
 type Bot struct {
 	Email        string     `db:"email"`
-	Status       string     `db:"status"`
+	Status       *string    `db:"status"`
 	CreatedAt    time.Time  `db:"created_at"`
 	LastUsed     time.Time  `db:"last:used"`
 	AgingEndDate *time.Time `db:"aging_end_date"`
