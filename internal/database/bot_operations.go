@@ -17,25 +17,14 @@ func InsertBot(db *sql.DB, bot Bot, config *config.Config) error {
 		agingEndDate = time.Now().AddDate(0, 0, config.Bot.AgingPeriod)
 	}
 
-	columns := []string{"email", "aging_end_date"}
-	placeholders := []string{"$1", "$2"}
-	values := []any{bot.Email, agingEndDate}
-	var placeHolderIndex uint8 = 3
+	columns := []string{"email", "aging_end_date", "status", "created_at", "last_used", "first_name", "last_name", "username", "password"}
+	values := []any{bot.Email, agingEndDate, bot.Status, bot.CreatedAt, bot.LastUsed, bot.FirstName, bot.LastName, bot.Username, bot.Password}
+	var placeholders []string
+	placeHolderIndex := len(columns)
 
-	insertBotHelper := func(value *string, insert string) {
-		if value != nil {
-			values = append(values, value)
-			placeholders = append(placeholders, fmt.Sprintf("$%d", placeHolderIndex))
-			columns = append(columns, insert)
-			placeHolderIndex++
-		}
+	for i := 1; i <= placeHolderIndex; i++ {
+		placeholders = append(placeholders, fmt.Sprintf("$%d", i))
 	}
-
-	insertBotHelper(bot.Status, "status")
-	insertBotHelper(bot.FirstName, "first_name")
-	insertBotHelper(bot.LastName, "last_name")
-	insertBotHelper(bot.Username, "username")
-	insertBotHelper(bot.Password, "password")
 
 	sqlQuery := fmt.Sprintf("INSERT INTO bots (%s) VALUES (%s)", strings.Join(columns, ", "), strings.Join(placeholders, ", "))
 

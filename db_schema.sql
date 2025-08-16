@@ -17,10 +17,12 @@ CREATE TABLE bots (
     created_at timestamp DEFAULT NOW(),
     last_used timestamp DEFAULT NOW(),
     aging_end_date timestamp,
-    first_name varchar(100),
-    last_name varchar(100),
-    username varchar(100),
-    password VARCHAR(100)
+    first_name varchar(100) NOT NULL,
+    last_name varchar(100) NOT NULL,
+    username varchar(100) NOT NULL,
+    password varchar(100) NOT NULL,
+    birth_date timestamp NOT NULL,
+    gender varchar(50) NOT NULL
 );
 
 INSERT INTO bots (email)
