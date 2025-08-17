@@ -24,22 +24,11 @@ func SendColdEmail(sender database.Sender, recipient string, content EmailConten
 	//senderRef := sender.Name + " <" + sender.Email + ">"
 	senderRef := sender.Email
 
-	var atachments []*resend.Attachment;
-
-	for _, mailAttachment := range content.Attachments{
-		resendAtachment := &resend.Attachment{ 
-			Path:     mailAttachment.Path,
-    		Filename: mailAttachment.Filename,
-		}
-		atachments = append(atachments, resendAtachment)
-	}	
-
 	params := &resend.SendEmailRequest{
         From:    	 senderRef,
         To:      	 []string{recipient},
         Html:    	 content.Body,
         Subject: 	 content.Subject,
-		Attachments: atachments,
     }
 
     _, err = client.Emails.Send(params)
