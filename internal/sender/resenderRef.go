@@ -12,7 +12,7 @@ import (
 
 func SendColdEmail(sender database.Sender, recipient string, content EmailContent) error {
 
-	err := godotenv.Load()
+	err := godotenv.Overload()
 	if err != nil {
 		return err
 	}
