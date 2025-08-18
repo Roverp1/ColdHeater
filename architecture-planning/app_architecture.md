@@ -52,7 +52,7 @@ Development should follow [[Version planning]]
 
 - bots: email, status, created_at, last_used, aging_end_date, first_name, last_name, username, password
 - campaigns: id, ip
-- senders: id, email, daily_quota (?), warmup_end_date, campaign_id
+- senders: id(?), email(primary key?), daily_quota (?), warmup_end_date, campaign_id
 - sender_bot_interactions: id, sender_id, bot_id, interaction_type, created_at
 - queue_tasks: id, campaign_id, queue_type, task_data, priority, scheduled_time, status
 - conversations: id, sender_id, bot_id, thread_id, message_id, subject, next_step_time
@@ -107,4 +107,3 @@ Initial file structure is described in [[file_structure]]
    <!---->
    <!-- - Wait for the next scheduled action time -->
    <!---->
-
