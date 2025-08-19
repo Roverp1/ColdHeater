@@ -27,9 +27,17 @@ func ShowMenu(db *sql.DB) {
 
 		switch userInput {
 		case 1:
-			err := botcreation.CreateGmailBot()
+			verificationAcc, err := database.GetVerificationAccount(db)
+			if err != nil {
+				fmt.Printf("Failed to get verification account:\n%v\n", err)
+			}
+			err = botcreation.CreateGmailBot(*verificationAcc)
 			if err != nil {
 				fmt.Printf("Failed to craete bot:\n%v\n", err)
+			}
+			err = database.IncrementVerificationAccUsage(db, verificationAcc.Email)
+			if err != nil {
+				fmt.Printf("Failed to update verification account:\n%v\n", err)
 			}
 		case 2:
 			fmt.Printf("Uploading leads...\n")

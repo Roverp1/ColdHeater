@@ -11,19 +11,18 @@ import (
 	"github.com/go-rod/rod/lib/proto"
 )
 
-func CreateGmailBot() error {
-	browser := NewStealthBrowser(false, time.Second/2)
+func CreateGmailBot(verificationAcc database.VerificationAccount) error {
+	browser := NewStealthBrowser(false, time.Second/4)
 
 	bot := generateBotData()
-	fmt.Println("birthDate:", bot.BirthDate.Format("2006-01-02"))
 
-	page := browser.NewStealthPage()
-	err := page.MustNavigate("https://accounts.google.com/signin").MustWindowFullscreen().WaitLoad()
+	gmailSignUpPage := browser.NewStealthPage()
+	err := gmailSignUpPage.MustNavigate("https://accounts.google.com/signin").MustWindowFullscreen().WaitLoad()
 	if err != nil {
 		return fmt.Errorf("Failed to navigate to the signin page")
 	}
 
-	createAccElement, err := page.ElementR("span", "/^Create account$/")
+	createAccElement, err := gmailSignUpPage.ElementR("span", "/^Create account$/")
 	if err != nil {
 		return fmt.Errorf("Failed to select 'Create Account' element:\n%w", err)
 	}
@@ -33,7 +32,7 @@ func CreateGmailBot() error {
 		return fmt.Errorf("Failed to click 'Create account element'")
 	}
 
-	forPresonalUseElement, err := page.ElementR("li", "/^For my personal use$/")
+	forPresonalUseElement, err := gmailSignUpPage.ElementR("li", "/^For my personal use$/")
 	if err != nil {
 		return fmt.Errorf("Failed to select 'For my personal use' element:\n%w", err)
 	}
@@ -43,36 +42,48 @@ func CreateGmailBot() error {
 		return fmt.Errorf("Failed to click 'For personal use element'")
 	}
 
-	err = page.WaitLoad()
+	err = gmailSignUpPage.WaitLoad()
 	if err != nil {
 		return fmt.Errorf("Failed to navigate to account creation page: %w", err)
 	}
 
 	err = rod.Try(func() {
-		page.MustElement("#firstName").MustInput(bot.FirstName)
-		page.MustElement("#lastName").MustInput(bot.LastName)
+		gmailSignUpPage.MustElement("#firstName").MustInput(bot.FirstName)
+		gmailSignUpPage.MustElement("#lastName").MustInput(bot.LastName)
 
-		page.MustElementR("span", "/^Next$/").MustClick()
-		page.MustWaitLoad()
+		gmailSignUpPage.MustElementR("span", "/^Next$/").MustClick()
+		gmailSignUpPage.MustWaitLoad()
 	})
 	if err != nil {
 		return fmt.Errorf("Failed to pass 'Enter your name' page: %w", err)
 	}
 
 	err = rod.Try(func() {
-		page.MustElement("#month").MustClick().
+		gmailSignUpPage.MustElement("#month").MustClick().
 			MustElementR("li", fmt.Sprintf("/^%s$/", bot.BirthDate.Month().String())).MustClick()
-		page.MustElement("#day").MustInput(fmt.Sprintf("%d", bot.BirthDate.Day()))
-		page.MustElement("#year").MustInput(fmt.Sprintf("%d", bot.BirthDate.Year()))
-		page.MustElementR("div", "/^Gender$/").MustClick().
+		gmailSignUpPage.MustElement("#day").MustInput(fmt.Sprintf("%d", bot.BirthDate.Day()))
+		gmailSignUpPage.MustElement("#year").MustInput(fmt.Sprintf("%d", bot.BirthDate.Year()))
+		gmailSignUpPage.MustElementR("div", "/^Gender$/").MustClick().
 			MustElementR("li", fmt.Sprintf("/^%s$/i", bot.Gender)).MustClick()
 
-		page.MustElementR("span", "/^Next$/").MustClick()
-		page.MustWaitLoad()
+		gmailSignUpPage.MustElementR("span", "/^Next$/").MustClick()
+		gmailSignUpPage.MustWaitLoad()
 	})
 	if err != nil {
 		return fmt.Errorf("Failed to pass 'Basic information' page: %w", err)
 	}
+
+	err = rod.Try(func() {
+		gmailSignUpPage.MustElement("#emailPhone").MustInput(verificationAcc.Email)
+		gmailSignUpPage.MustElementR("span", "/^Next$/").MustClick()
+		gmailSignUpPage.MustWaitLoad()
+	})
+	if err != nil {
+		return fmt.Errorf("Failed to pass 'Add phone or email' page: %w", err)
+	}
+
+	verificationEmailPage := browser.NewStealthPage()
+	verificationEmailPage.Navigate("https://account.proton.me/login")
 
 	time.Sleep(time.Hour)
 
