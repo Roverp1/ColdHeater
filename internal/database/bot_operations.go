@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"math/rand/v2"
 	"strings"
 	"time"
 
@@ -87,6 +88,56 @@ func UpdateBotStatus(db *sql.DB, email, status string) error {
 	}
 	if rowsAffected == 0 {
 		return fmt.Errorf("No bot found with email %s: no rows affected", email)
+	}
+
+	return nil
+}
+
+func GetVerificationAccount(db *sql.DB) (*VerificationAccount, error) {
+	var verificationAccs []VerificationAccount
+	var randomAcc *VerificationAccount
+
+	rows, err := db.Query("SELECT email, password, created_at, last_used, usage_count, is_active FROM verification_accounts WHERE is_active = true")
+	if err != nil {
+		return nil, fmt.Errorf("Failed to select all verification accounts from db: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var acc VerificationAccount
+
+		err := rows.Scan(&acc.Email, &acc.Password, &acc.CreatedAt, &acc.LastUsed, &acc.UsageCount, &acc.IsActive)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to scan select row into VerificationAccount struct: %w", err)
+		}
+
+		verificationAccs = append(verificationAccs, acc)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("Error during VerificationAccount's rows iteration: %w", err)
+	}
+
+	if len(verificationAccs) == 0 {
+		return nil, fmt.Errorf("No active verification accounts found")
+	}
+
+	randomAcc = &verificationAccs[rand.IntN(len(verificationAccs))]
+	return randomAcc, nil
+}
+
+func IncrementVerificationAccUsage(db *sql.DB, email string) error {
+	result, err := db.Exec("UPDATE verification_accounts SET usage_count = usage_count + 1, last_used = NOW() WHERE email = $1", email)
+	if err != nil {
+		return fmt.Errorf("Failed to update verification acc's %s usage_count: %w", email, err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("Failed to get affected rows after updating verification account %s:\n%w", email, err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("No verification account found with email %s: no rows affected", email)
 	}
 
 	return nil
