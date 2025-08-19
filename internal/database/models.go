@@ -15,3 +15,12 @@ type Bot struct {
 	BirthDate    time.Time  `db:"birth_date"`
 	Gender       string     `db:"gender"`
 }
+
+type VerificationAccount struct {
+	Email      string     `db:"email"`
+	Password   string     `db:"password"`
+	CreatedAt  time.Time  `db:"created_at"`
+	LastUsed   *time.Time `db:"last_used"`
+	UsageCount int        `db:"usage_count"`
+	IsActive   bool       `db:"is_active"`
+}
