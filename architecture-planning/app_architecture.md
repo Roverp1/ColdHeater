@@ -57,6 +57,7 @@ Development should follow [[Version planning]]
 - queue_tasks: id, campaign_id, queue_type, task_data, priority, scheduled_time, status
 - conversations: id, sender_id, bot_id, thread_id, message_id, subject, next_step_time
 - verification_accounts: email, password, created_at, last_used, usage_count, is_active
+- scheduled_actions: id, action_type, scheduled_time, 
 
 ## Complete Flow (cold emails)
 

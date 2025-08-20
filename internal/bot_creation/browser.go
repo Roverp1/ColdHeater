@@ -1,6 +1,7 @@
 package botcreation
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-rod/rod"
@@ -12,12 +13,31 @@ type StealthBrowser struct {
 	Browser *rod.Browser
 }
 
+func NewUserModBrowser(delay time.Duration) (*rod.Browser, error) {
+	var browserBin string = "/usr/bin/chromium"
+
+	launcherURL, err := launcher.NewUserMode().Bin(browserBin).UserDataDir("tmp/rod-profile").Launch()
+	if err != nil {
+		return nil, fmt.Errorf("Failed to launch '%s' browser: %w", browserBin, err)
+	}
+
+	browser := rod.New().ControlURL(launcherURL).SlowMotion(delay).NoDefaultDevice()
+	err = browser.Connect()
+	if err != nil {
+		return nil, fmt.Errorf("Failed to connect to the browser '%s': %w", browserBin, err)
+	}
+
+	return browser, nil
+}
+
 func NewStealthBrowser(headless bool, delay time.Duration) *StealthBrowser {
-	l := launcher.New().
+	var launcherURL string
+
+	launcherURL = launcher.New().
 		Headless(headless).
 		MustLaunch()
 
-	browser := rod.New().ControlURL(l).SlowMotion(delay).NoDefaultDevice().MustConnect()
+	browser := rod.New().ControlURL(launcherURL).SlowMotion(delay).NoDefaultDevice().MustConnect()
 
 	return &StealthBrowser{
 		Browser: browser,
