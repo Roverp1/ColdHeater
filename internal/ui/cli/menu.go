@@ -32,7 +32,7 @@ func ShowMenu(db *sql.DB) {
 				fmt.Printf("Failed to get verification account:\n%v\n", err)
 				return
 			}
-			err = botcreation.CreateGmailBot(*verificationAcc)
+			_, err = botcreation.CreateGmailBot(*verificationAcc)
 			if err != nil {
 				fmt.Printf("Failed to create bot:\n%v\n", err)
 				return
