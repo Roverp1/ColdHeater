@@ -91,18 +91,12 @@ func CreateGmailBot(verificationAcc database.VerificationAccount) error {
 		gmailSignUpPage.MustElement("#emailPhone").MustInput(verificationAcc.Email)
 		gmailSignUpPage.MustElementR("span", "/^Next$/").MustClick()
 		gmailSignUpPage.MustWaitLoad()
-		// debug
-		time.Sleep(time.Second * 2)
 	})
 	if err != nil {
 		return fmt.Errorf("Failed to pass 'Add phone or email' page: %w", err)
 	}
 
-	if div, err := gmailSignUpPage.Element("div.EkjuhF"); err == nil {
-		fmt.Println("Found div text:", div.MustText())
-	}
-
-	_, err = gmailSignUpPage.Timeout(time.Second*3).Race().
+	_, err = gmailSignUpPage.Race().
 		ElementR("span", "/^Verify your email address$/").Handle(func(e *rod.Element) error {
 		_, err := GetVerificationCode(browser, verificationAcc)
 		if err != nil {
@@ -111,9 +105,10 @@ func CreateGmailBot(verificationAcc database.VerificationAccount) error {
 
 		return nil
 	}).
-		ElementR("*", "/That username is taken. Try another./").Handle(func(e *rod.Element) error {
+		ElementR("div", "/That username is taken. Try another./").Handle(func(e *rod.Element) error {
 		err := rod.Try(func() {
-			e.MustClick()
+			// more specific selector?
+			gmailSignUpPage.MustElementR("button", "/an email address or phone number/").MustClick()
 			gmailSignUpPage.MustWaitLoad()
 		})
 		if err != nil {
