@@ -30,15 +30,18 @@ func ShowMenu(db *sql.DB) {
 			verificationAcc, err := database.GetVerificationAccount(db)
 			if err != nil {
 				fmt.Printf("Failed to get verification account:\n%v\n", err)
+				return
 			}
 			err = botcreation.CreateGmailBot(*verificationAcc)
 			if err != nil {
-				fmt.Printf("Failed to craete bot:\n%v\n", err)
+				fmt.Printf("Failed to create bot:\n%v\n", err)
+				return
 			}
-			err = database.IncrementVerificationAccUsage(db, verificationAcc.Email)
-			if err != nil {
-				fmt.Printf("Failed to update verification account:\n%v\n", err)
-			}
+			// err = database.IncrementVerificationAccUsage(db, verificationAcc.Email)
+			// if err != nil {
+			// 	fmt.Printf("Failed to update verification account:\n%v\n", err)
+			//  return
+			// }
 		case 2:
 			fmt.Printf("Uploading leads...\n")
 		case 3:
@@ -47,6 +50,7 @@ func ShowMenu(db *sql.DB) {
 			bots, err := database.GetAllBots(db)
 			if err != nil {
 				fmt.Printf("%v\n", err)
+				return
 			}
 			for _, bot := range bots {
 				fmt.Println(bot)

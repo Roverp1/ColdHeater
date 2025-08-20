@@ -12,12 +12,26 @@ import (
 )
 
 func CreateGmailBot(verificationAcc database.VerificationAccount) error {
-	browser := NewStealthBrowser(false, time.Second/4)
+	userBrowser, err := NewUserModBrowser(time.Second / 4)
+	if err != nil {
+		return fmt.Errorf("Failed to create new user mode browser:\n%w", err)
+	}
+
+	browser, err := userBrowser.Incognito()
+	if err != nil {
+		return fmt.Errorf("Failed to create incognito browser:\n%w", err)
+	}
 
 	bot := generateBotData()
 
-	gmailSignUpPage := browser.NewStealthPage()
-	err := gmailSignUpPage.MustNavigate("https://accounts.google.com/signin").MustWindowFullscreen().WaitLoad()
+	gmailSignUpPage, err := browser.Page(proto.TargetCreateTarget{})
+	if err != nil {
+		return fmt.Errorf("Failed to create new browser page:\n%w", err)
+	}
+
+	err = rod.Try(func() {
+		gmailSignUpPage.MustNavigate("https://accounts.google.com/signin").MustWindowFullscreen().MustWaitLoad()
+	})
 	if err != nil {
 		return fmt.Errorf("Failed to navigate to the signin page")
 	}
@@ -29,7 +43,7 @@ func CreateGmailBot(verificationAcc database.VerificationAccount) error {
 
 	err = createAccElement.Click(proto.InputMouseButtonLeft, 1)
 	if err != nil {
-		return fmt.Errorf("Failed to click 'Create account element'")
+		return fmt.Errorf("Failed to click 'Create account element':\n%w", err)
 	}
 
 	forPresonalUseElement, err := gmailSignUpPage.ElementR("li", "/^For my personal use$/")
@@ -77,17 +91,101 @@ func CreateGmailBot(verificationAcc database.VerificationAccount) error {
 		gmailSignUpPage.MustElement("#emailPhone").MustInput(verificationAcc.Email)
 		gmailSignUpPage.MustElementR("span", "/^Next$/").MustClick()
 		gmailSignUpPage.MustWaitLoad()
+		// debug
+		time.Sleep(time.Second * 2)
 	})
 	if err != nil {
 		return fmt.Errorf("Failed to pass 'Add phone or email' page: %w", err)
 	}
 
-	verificationEmailPage := browser.NewStealthPage()
-	verificationEmailPage.Navigate("https://account.proton.me/login")
+	if div, err := gmailSignUpPage.Element("div.EkjuhF"); err == nil {
+		fmt.Println("Found div text:", div.MustText())
+	}
 
-	time.Sleep(time.Hour)
+	_, err = gmailSignUpPage.Timeout(time.Second*3).Race().
+		ElementR("span", "/^Verify your email address$/").Handle(func(e *rod.Element) error {
+		_, err := GetVerificationCode(browser, verificationAcc)
+		if err != nil {
+			return fmt.Errorf("Failed to get verification code from account %s: %w", verificationAcc.Email, err)
+		}
+
+		return nil
+	}).
+		ElementR("*", "/That username is taken. Try another./").Handle(func(e *rod.Element) error {
+		err := rod.Try(func() {
+			e.MustClick()
+			gmailSignUpPage.MustWaitLoad()
+		})
+		if err != nil {
+			return fmt.Errorf("Failed to pass 'use email or phone number page:\n%w", err)
+		}
+
+		return nil
+	}).
+		Do()
+	if err != nil {
+		return fmt.Errorf("Race failed:\n%w", err)
+	}
+
+	time.Sleep(time.Minute)
 
 	return nil
+}
+
+func GetVerificationCode(browser *rod.Browser, verificationAcc database.VerificationAccount) (verificationCode *string, err error) {
+	const gmailNextElement string = "/^Next$/"
+
+	verificationCodePage, err := browser.Page(proto.TargetCreateTarget{})
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create verificationCodePage:\n%w", err)
+	}
+
+	err = rod.Try(func() {
+		verificationCodePage.MustNavigate("https://accounts.google.com/signin").MustWaitLoad()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Failed to navigate to verificationCodePage:\n%w", err)
+	}
+
+	err = rod.Try(func() {
+		verificationCodePage.MustElement("#identifierId").MustInput(verificationAcc.Email)
+		verificationCodePage.MustElementR("span", gmailNextElement).MustClick()
+		verificationCodePage.MustWaitLoad()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Failed to pass 'Sign in' page: %w", err)
+	}
+
+	err = rod.Try(func() {
+		verificationCodePage.MustElement("input[aria-label=\"Enter your password\"]").MustInput(verificationAcc.Password)
+		verificationCodePage.MustElementR("span", gmailNextElement).MustClick()
+		verificationCodePage.MustWaitLoad()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Failed to pass 'input password' page:\n%w", err)
+	}
+
+	var inboxPage *rod.Page
+
+	err = rod.Try(func() {
+		event := proto.TargetTargetCreated{}
+		wait := browser.WaitEvent(&event)
+
+		// might need beter handling, if 'products' window wont always be always open after login
+		verificationCodePage.MustElementR("span", "/^Gmail$/").MustClick()
+
+		wait()
+		inboxPage = browser.MustPageFromTargetID(event.TargetInfo.TargetID)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Failed to open inbox page:\n%w", err)
+	}
+
+	err = rod.Try(func() {
+		_ = inboxPage.TargetID
+	})
+
+	return verificationCode, nil
 }
 
 func generateBotData() database.Bot {
