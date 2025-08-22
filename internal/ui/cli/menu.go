@@ -32,16 +32,28 @@ func ShowMenu(db *sql.DB) {
 				fmt.Printf("Failed to get verification account:\n%v\n", err)
 				return
 			}
-			_, err = botcreation.CreateGmailBot(*verificationAcc)
+			bot, wasUsed, err := botcreation.CreateGmailBot(*verificationAcc)
 			if err != nil {
 				fmt.Printf("Failed to create bot:\n%v\n", err)
 				return
 			}
-			// err = database.IncrementVerificationAccUsage(db, verificationAcc.Email)
-			// if err != nil {
-			// 	fmt.Printf("Failed to update verification account:\n%v\n", err)
-			//  return
-			// }
+			if bot == nil {
+				fmt.Printf("Failed to create bot")
+				return
+			}
+
+			database.InsertBot(db, bot)
+
+			if wasUsed == false {
+				fmt.Printf("Verification account was not used for bot: %s", bot.Email)
+				return
+			}
+
+			err = database.IncrementVerificationAccUsage(db, verificationAcc.Email)
+			if err != nil {
+				fmt.Printf("Failed to update verification account:\n%v\n", err)
+				return
+			}
 		case 2:
 			fmt.Printf("Uploading leads...\n")
 		case 3:
