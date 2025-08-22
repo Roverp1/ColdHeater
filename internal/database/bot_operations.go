@@ -10,12 +10,12 @@ import (
 	"coldheater/internal/config"
 )
 
-func InsertBot(db *sql.DB, bot Bot, config *config.Config) error {
+func InsertBot(db *sql.DB, bot *Bot) error {
 	var agingEndDate time.Time
 	if bot.AgingEndDate != nil {
 		agingEndDate = *bot.AgingEndDate
 	} else {
-		agingEndDate = time.Now().AddDate(0, 0, config.Bot.AgingPeriod)
+		agingEndDate = time.Now().AddDate(0, 0, config.Global.Bot.AgingPeriod)
 	}
 
 	columns := []string{"email", "aging_end_date", "status", "created_at", "last_used", "first_name", "last_name", "username", "password"}
