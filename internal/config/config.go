@@ -13,6 +13,8 @@ type Config struct {
 	}
 }
 
+var Global *Config
+
 func LoadConfig() (*Config, error) {
 	var config Config
 
