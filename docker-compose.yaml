@@ -1,0 +1,23 @@
+version: "2.39"
+
+services:
+  app:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - browser-template
+
+  browser-template:
+    build:
+      context: ./docker/browser
+    ports:
+      - "1488:1488"
+    environment:
+      - DISPLAY=$DISPLAY
+    volumes:
+      - browser-profiles:/profiles
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    network_mode: host
