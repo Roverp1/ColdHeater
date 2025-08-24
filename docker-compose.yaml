@@ -1,23 +1,23 @@
-version: "2.39"
-
 services:
   app:
     build: .
+    stdin_open: true
+    tty: true
     env_file:
       - .env
-    volumes:
-      - .:/app
     depends_on:
       - browser-template
 
   browser-template:
-    build:
-      context: ./docker/browser
+    image: kasmweb/brave:1.17.0-rolling-daily
     ports:
-      - "1488:1488"
+      - "6901:6901"
+      - "6801:6801"
     environment:
-      - DISPLAY=$DISPLAY
-    volumes:
-      - browser-profiles:/profiles
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    network_mode: host
+      - VNC_PW=password
+      - RESOLUTION=1920x1080
+      - APP_ARGS=--remote-debugging-port=6801 -- remote-allow-origins=* --user-data-dir=remote-profile
+    shm_size: 512m
+
+volumes:
+  browser-profiles:
