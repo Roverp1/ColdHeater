@@ -28,7 +28,7 @@ type VerificationAccount struct {
 type Sender struct {
 	Id 				int	
 	Email			string
-	Daily_quota 	string
-	Warmup_end_date time.Time	
-	Campaign_id 	int
+	DailyQuota 	string
+	WarmupEndDate time.Time	
+	CampaignId 	int
 }
