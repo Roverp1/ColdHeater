@@ -9,14 +9,14 @@ services:
       - browser-template
 
   browser-template:
-    image: kasmweb/brave:1.17.0-rolling-daily
+    build:
+      context: ./docker/browser_proxy/
     ports:
-      - "6901:6901"
-      - "6801:6801"
+      - "9221:9221"
     environment:
       - VNC_PW=password
       - RESOLUTION=1920x1080
-      - APP_ARGS=--remote-debugging-port=6801 -- remote-allow-origins=* --user-data-dir=remote-profile
+      - APP_ARGS=--remote-debugging-port=6801 --remote-allow-origins=* --user-data-dir=remote-profile
     shm_size: 512m
 
 volumes:
