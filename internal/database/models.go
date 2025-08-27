@@ -24,3 +24,11 @@ type VerificationAccount struct {
 	UsageCount int        `db:"usage_count"`
 	IsActive   bool       `db:"is_active"`
 }
+
+type Sender struct {
+	Id 				int	
+	Email			string
+	DailyQuota 	string
+	WarmupEndDate time.Time	
+	CampaignId 	int
+}

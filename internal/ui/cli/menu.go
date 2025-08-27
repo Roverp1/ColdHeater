@@ -3,13 +3,14 @@ package cli
 import (
 	botcreation "coldheater/internal/bot_creation"
 	"coldheater/internal/database"
+	"coldheater/internal/sender"
 	"database/sql"
 	"fmt"
 	"os"
 )
 
 func ShowMenu(db *sql.DB) {
-	options := [...]string{"Create new bot", "Upload leads", "Start cold outreach", "List all bots", "Exit"}
+	options := [...]string{"Create new bot", "Upload leads", "Start cold outreach", "List all bots", "DDbug", "Exit"}
 
 	for {
 		fmt.Printf("=== ColdHeater CLI ===\n")
@@ -20,7 +21,7 @@ func ShowMenu(db *sql.DB) {
 		var userInput uint8
 
 		fmt.Printf("Enter digit to select an option (e.g. \"%d\")\n", len(options))
-		n, err := fmt.Scanf("%d", &userInput)
+		n, err := fmt.Scanln(&userInput)
 		if n != 1 || err != nil {
 			fmt.Printf("Wasnt able to read user's input. Example usage: \"4\"[Enter]:\n %v\n", err)
 		}
@@ -68,6 +69,8 @@ func ShowMenu(db *sql.DB) {
 				fmt.Println(bot)
 			}
 		case 5:
+			sender.DebugMenu()
+		case 6:
 			fmt.Printf("Dust to dust...\n")
 			return
 		default:

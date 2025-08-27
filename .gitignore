@@ -1,6 +1,8 @@
 .env
 db_schema.sql
 
+pgp_keys/
+
 tmp/
 
 CLAUDE.md
