@@ -204,16 +204,17 @@ git push
 
 1. Get their public key: `yourname_public_key.asc`
 2. Import: `gpg --import yourname_public_key.asc`
-3. Add fingerprint to `.sops.yaml`
-4. Re-encrypt: `sops -e .env > .env.encrypted`
-5. Commit: `git add .sops.yaml .env.encrypted && git commit -m "Add new team member"`
+3. Get fingerprint for the imported key `gpg --fingerprint "{public_key_name}"`
+4. Add fingerprint to `.sops.yaml` without spaces
+5. Use updatekeys `sops updatekeys --input-type dotenv .env.encrypted`
+6. Commit: `git add .sops.yaml .env.encrypted && git commit -m "Add new team member"`
 
 ### **Team Member Leaving**
 
 1. Remove their fingerprint from `.sops.yaml`
 2. Rotate all secrets (generate new API keys, passwords)
 3. Update `.env` with new secrets
-4. Re-encrypt: `sops -e .env > .env.encrypted`
+4. Use updatekeys `sops updatekeys --input-type dotenv .env.encrypted`
 5. Commit and push
 
 ---
@@ -256,4 +257,3 @@ Now `.env` variables load automatically when you `cd` into the project.
 - **Key exchange**: Use encrypted channels (Signal, not email)
 - **Team changes**: Always rotate secrets when members leave
 - **Backup**: Keep encrypted `.env.encrypted` in Git, never plain `.env`
-
