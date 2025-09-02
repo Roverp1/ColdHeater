@@ -57,7 +57,7 @@ Development should follow [[Version planning]]
 - queue_tasks: id, campaign_id, queue_type, task_data, priority, scheduled_time, status
 - conversations: id, sender_id, bot_id, thread_id, message_id, subject, next_step_time
 - verification_accounts: email, password, created_at, last_used, usage_count, is_active
-- scheduled_actions: id, action_type, scheduled_time, 
+- scheduled_actions: id, action_type, scheduled_time,
 
 ## Complete Flow (cold emails)
 
@@ -88,6 +88,12 @@ _Before adding a sender, to a list of available senders. One need to select a pr
 ## File structure
 
 Initial file structure is described in [[file_structure]]
+
+## Cold outreach flow
+
+1. Send message from sender to lead, or bot
+2. Save interaction in database
+3. Bot looks in database for new conversations and starts decision making logic
 
 ## Warmup flow
 
