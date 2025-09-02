@@ -14,18 +14,17 @@ type StealthBrowser struct {
 }
 
 func NewUserModBrowser(delay time.Duration) (*rod.Browser, error) {
-	// var browserBin string = "/usr/bin/chromium"
-	//
-	// launcherURL, err := launcher.NewUserMode().Bin(browserBin).UserDataDir("tmp/rod-profile").Launch()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("Failed to launch '%s' browser: %w", browserBin, err)
-	// }
-	browserPort := "ws://browser-template:9221"
+	var browserBin string = "/usr/bin/chromium"
 
-	browser := rod.New().ControlURL(browserPort).SlowMotion(delay).NoDefaultDevice()
-	err := browser.Connect()
+	launcherURL, err := launcher.NewUserMode().Bin(browserBin).UserDataDir("tmp/rod-profile").Launch()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to the browser on port '%s': %w", browserPort, err)
+		return nil, fmt.Errorf("Failed to launch '%s' browser: %w", browserBin, err)
+	}
+
+	browser := rod.New().ControlURL(launcherURL).SlowMotion(delay).NoDefaultDevice()
+	err = browser.Connect()
+	if err != nil {
+		return nil, fmt.Errorf("Failed to connect to the browser '%s': %w", browserBin, err)
 	}
 
 	return browser, nil
