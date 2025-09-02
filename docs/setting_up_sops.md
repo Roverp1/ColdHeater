@@ -20,7 +20,7 @@ sops .env.encrypted
 # Add new team member (after getting their public key)
 gpg --import newmember_public_key.asc
 # Add their fingerprint to .sops.yaml, then:
-sops -e .env > .env.encrypted
+sops updatekeys --input-type dotenv .env.encrypted
 ```
 
 ---
@@ -91,18 +91,21 @@ Add all team fingerprints:
 
 ```yaml
 creation_rules:
-  - path_regex: \.env$
-    pgp: |
-      ABCDEF1234567890ABCDEF1234567890ABCDEF12  # dd
-      1234567890ABCDEF1234567890ABCDEF12345678  # Bob  
-      567890ABCDEF1234567890ABCDEF1234567890AB  # Charlie
+  - pgp: >-
+      ABCDEF1234567890ABCDEF1234567890ABCDEF12,
+      1234567890ABCDEF1234567890ABCDEF12345678,
+      567890ABCDEF1234567890ABCDEF1234567890AB
 ```
 
-**Get fingerprints:**
+**Get full fingerprints (40 characters):**
 
 ```bash
+gpg --fingerprint "user@email.com"
+# Look for line like: 62A4 3BFE 8D73 B90C 92F9  2035 1A9D FC6C 9E64 7E9F
+# Use: 62A43BFE8D73B90C92F920351A9DFC6C9E647E9F (remove spaces)
+
+# Or list all keys:
 gpg --list-keys --fingerprint
-# Copy 40-character fingerprint (remove spaces)
 ```
 
 ### **6. Encrypt and Commit Secrets**
@@ -204,9 +207,9 @@ git push
 
 1. Get their public key: `yourname_public_key.asc`
 2. Import: `gpg --import yourname_public_key.asc`
-3. Get fingerprint for the imported key `gpg --fingerprint "{public_key_name}"`
-4. Add fingerprint to `.sops.yaml` without spaces
-5. Use updatekeys `sops updatekeys --input-type dotenv .env.encrypted`
+3. Get full fingerprint: `gpg --fingerprint "their-email@domain.com"`
+4. Add fingerprint to `.sops.yaml` (40-character string without spaces)
+5. Re-encrypt for new team member: `sops updatekeys --input-type dotenv .env.encrypted`
 6. Commit: `git add .sops.yaml .env.encrypted && git commit -m "Add new team member"`
 
 ### **Team Member Leaving**
@@ -214,7 +217,7 @@ git push
 1. Remove their fingerprint from `.sops.yaml`
 2. Rotate all secrets (generate new API keys, passwords)
 3. Update `.env` with new secrets
-4. Use updatekeys `sops updatekeys --input-type dotenv .env.encrypted`
+4. Re-encrypt without departed member: `sops updatekeys --input-type dotenv .env.encrypted`
 5. Commit and push
 
 ---
