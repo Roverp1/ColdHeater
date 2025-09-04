@@ -1,11 +1,13 @@
 package config
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/go-rod/rod/lib/launcher"
 	"gopkg.in/yaml.v3"
@@ -122,11 +124,12 @@ func initBrowserPathFile(browserBin *string) (err error) {
 }
 
 func initOwnPath()(browserBin string){
-	var input string
 	for {
 		fmt.Println("Please, type the browser path to be used.")
 		fmt.Println("Enter \"abort\" to abort.")
-		fmt.Scanln(&input)
+		reader := bufio.NewReader(os.Stdin)
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
 		switch input {
 		case "abort":
 			browserBin = "aborted"
