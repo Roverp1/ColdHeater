@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"coldheater/internal/config"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/go-rod/stealth"
@@ -14,7 +15,12 @@ type StealthBrowser struct {
 }
 
 func NewUserModBrowser(delay time.Duration) (*rod.Browser, error) {
-	var browserBin string = "/usr/bin/chromium"
+	browserBin, err := config.GetBrowserBin()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get browser bin: %w", err)
+	}
+
+	// browserBin = "/usr/bin/chromium"
 
 	launcherURL, err := launcher.NewUserMode().Bin(browserBin).UserDataDir("tmp/rod-profile").Launch()
 	if err != nil {

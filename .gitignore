@@ -5,4 +5,6 @@ pgp_keys/
 
 tmp/
 
+configs/browser_path.yaml
+
 CLAUDE.md
