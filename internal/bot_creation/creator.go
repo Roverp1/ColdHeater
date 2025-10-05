@@ -12,7 +12,7 @@ import (
 )
 
 func CreateGmailBot(verificationAcc database.VerificationAccount) (bot *database.Bot, wasVerificationAccUsed bool, err error) {
-	userBrowser, err := NewUserModBrowser(time.Second / 2)
+	userBrowser, err := NewUserModBrowser(time.Second / 4)
 	if err != nil {
 		return nil, wasVerificationAccUsed, fmt.Errorf("Failed to create new user mode browser:\n%w", err)
 	}
@@ -124,11 +124,11 @@ func CreateGmailBot(verificationAcc database.VerificationAccount) (bot *database
 		return nil, wasVerificationAccUsed, fmt.Errorf("Race failed:\n%w", err)
 	}
 
-	const emailRegex string = `/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/`
-
 	var availableEmail string
 
 	err = rod.Try(func() {
+		const emailRegex string = `/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/`
+
 		emailElement := gmailSignUpPage.MustElementR("div", emailRegex)
 
 		availableEmail = emailElement.MustText()
